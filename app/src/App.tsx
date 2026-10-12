@@ -1,7 +1,7 @@
 import { ConnectionProvider, useWallet, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Keypair, LAMPORTS_PER_SOL, PublicKey, TransactionInstruction } from "@solana/web3.js";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Actor,
   advanceIxs,
@@ -126,6 +126,7 @@ function Shell() {
     return null;
   }, [mode, role, demo, wallet.publicKey, wallet.signTransaction]);
 
+  const busyRef = useRef(false);
   const refresh = useCallback(async () => {
     try {
       const [p, d] = await Promise.all([fetchPool(), fetchDeals()]);
@@ -140,7 +141,8 @@ function Shell() {
 
   useEffect(() => {
     refresh();
-    const t = setInterval(refresh, 6000);
+    // light polling: the public devnet RPC rate-limits aggressively
+    const t = setInterval(() => !busyRef.current && !document.hidden && refresh(), 10_000);
     return () => clearInterval(t);
   }, [refresh]);
 
@@ -153,6 +155,7 @@ function Shell() {
     const signer = as ?? actor;
     if (!signer) return false;
     setBusy(label);
+    busyRef.current = true;
     try {
       const sig = await send(signer, await build(signer));
       setLog((l) => [{ label, sig, at: Date.now() }, ...l].slice(0, 12));
@@ -163,6 +166,7 @@ function Shell() {
       return false;
     } finally {
       setBusy(null);
+      busyRef.current = false;
     }
   };
 

@@ -54,16 +54,39 @@ export interface Actor {
   signTransaction(tx: Transaction): Promise<Transaction>;
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Retries calls that hit the public RPC's rate limit (HTTP 429). */
+export async function withRetry<T>(fn: () => Promise<T>, tries = 6): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const msg = String((e as { message?: string })?.message ?? e);
+      if (i >= tries - 1 || !/429|rate limit|Too Many Requests|fetch failed|Failed to fetch/i.test(msg)) throw e;
+      await sleep(600 * 2 ** i);
+    }
+  }
+}
+
 export async function send(actor: Actor, ixs: TransactionInstruction[]): Promise<string> {
   const tx = new Transaction().add(...ixs);
   tx.feePayer = actor.publicKey;
-  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("confirmed");
+  const { blockhash, lastValidBlockHeight } = await withRetry(() => connection.getLatestBlockhash("confirmed"));
   tx.recentBlockhash = blockhash;
   const signed = await actor.signTransaction(tx);
-  const sig = await connection.sendRawTransaction(signed.serialize());
-  const res = await connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
-  if (res.value.err) throw new Error(`Transaction failed: ${JSON.stringify(res.value.err)}`);
-  return sig;
+  const raw = signed.serialize();
+  const sig = await withRetry(() => connection.sendRawTransaction(raw));
+  // poll for confirmation over HTTP instead of opening a websocket per transaction
+  for (;;) {
+    await sleep(800);
+    const { value } = await withRetry(() => connection.getSignatureStatuses([sig]));
+    const status = value[0];
+    if (status?.err) throw new Error(`Transaction failed: ${JSON.stringify(status.err)}`);
+    if (status && (status.confirmationStatus === "confirmed" || status.confirmationStatus === "finalized")) return sig;
+    const height = await withRetry(() => connection.getBlockHeight("confirmed"));
+    if (height > lastValidBlockHeight) throw new Error("Transaction expired before confirmation. Try again.");
+  }
 }
 
 /** Turns a failed simulation into the program's own error message. */
@@ -126,9 +149,9 @@ const num = (b: BN) => Number(b.toString());
 
 export async function fetchPool(): Promise<PoolView> {
   const [p, vault, supply] = await Promise.all([
-    program.account.pool.fetch(POOL),
-    connection.getTokenAccountBalance(POOL_VAULT),
-    connection.getTokenSupply(SHARE_MINT),
+    withRetry(() => program.account.pool.fetch(POOL)),
+    withRetry(() => connection.getTokenAccountBalance(POOL_VAULT)),
+    withRetry(() => connection.getTokenSupply(SHARE_MINT)),
   ]);
   const idle = Number(vault.value.amount);
   const outstanding = num(p.outstandingPrincipal);
@@ -148,7 +171,7 @@ export async function fetchPool(): Promise<PoolView> {
 
 export async function fetchDeals(): Promise<DealView[]> {
   // Deal layout: 8-byte discriminator, importer (32), supplier (32), pool (32)...
-  const rows = await program.account.deal.all([{ memcmp: { offset: 8 + 64, bytes: POOL.toBase58() } }]);
+  const rows = await withRetry(() => program.account.deal.all([{ memcmp: { offset: 8 + 64, bytes: POOL.toBase58() } }]));
   return rows
     .map(({ publicKey, account: d }) => ({
       address: publicKey,
@@ -174,9 +197,9 @@ export async function fetchDeals(): Promise<DealView[]> {
 
 export async function fetchBalances(owner: PublicKey) {
   const [lamports, token, shares] = await Promise.all([
-    connection.getBalance(owner),
-    connection.getTokenAccountBalance(ata(MINT, owner)).catch(() => null),
-    connection.getTokenAccountBalance(ata(SHARE_MINT, owner)).catch(() => null),
+    withRetry(() => connection.getBalance(owner)),
+    withRetry(() => connection.getTokenAccountBalance(ata(MINT, owner))).catch(() => null),
+    withRetry(() => connection.getTokenAccountBalance(ata(SHARE_MINT, owner))).catch(() => null),
   ]);
   return {
     sol: lamports / LAMPORTS_PER_SOL,
