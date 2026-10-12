@@ -11,3 +11,4 @@ app/dist
 app/node_modules
 .env
 *.log
+app/public/media/

@@ -7,8 +7,8 @@
 An importer locks the full order amount in a program-owned escrow. Once the supplier posts proof of shipment, the supplier can draw up to 80% of that escrow as an advance from a stablecoin liquidity pool. When the goods are accepted, the escrow repays the pool first (principal plus a 1.5% fee) and pays the supplier the rest. The locked escrow is the collateral, so the advance repays itself.
 
 - **Live app (Solana devnet):** https://capstan-trade.vercel.app
-- **Pitch video:** PITCH_URL
-- **Demo video:** DEMO_URL
+- **Pitch video:** https://capstan-trade.vercel.app/media/capstan-pitch.mp4
+- **Demo video:** https://capstan-trade.vercel.app/media/capstan-demo.mp4
 - **Program ID (devnet):** [`2ATx5cQKsBZEyzxKfwyhkNM3KgWyGQGqykqxnfz4UBPU`](https://explorer.solana.com/address/2ATx5cQKsBZEyzxKfwyhkNM3KgWyGQGqykqxnfz4UBPU?cluster=devnet)
 
 ## The problem
