@@ -1,7 +1,7 @@
 {
   "cluster": "https://api.devnet.solana.com",
   "programId": "2ATx5cQKsBZEyzxKfwyhkNM3KgWyGQGqykqxnfz4UBPU",
-  "mint": "9ThUUjjHuibty3Ec6kzMVj6LHmCnVMicwFutes1sz4cH",
-  "pool": "H8PsdrEbJskw1wDGb2tDANnR667DzpSWzGxFaRkSJ4mE",
+  "mint": "9KPuV7s4X58Le1Hog3z4ibjdFnosTRghTAWp9dDnXyxN",
+  "pool": "D1B18QwkfBPMPXXEXcopxwVkHynVWcJLqZMBVzjvMjPq",
   "arbiter": "5woXsZ5QR3CeYPwVKPciw8AE1qJdWc7749fWVbxPPwPY"
 }
