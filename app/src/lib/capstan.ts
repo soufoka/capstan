@@ -74,6 +74,7 @@ export function explainError(e: unknown): string {
   const hex = all.match(/custom program error: 0x([0-9a-f]+)/i);
   if (hex) {
     const code = parseInt(hex[1], 16);
+    if (code === 1 && /Tokenkeg|TokenzQd|insufficient funds/i.test(all)) return `Not enough ${TOKEN} in this wallet.`;
     const err = (idl as { errors?: { code: number; msg: string }[] }).errors?.find((x) => x.code === code);
     if (err) return err.msg;
   }
