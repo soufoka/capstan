@@ -1,0 +1,1358 @@
+{
+  "address": "2ATx5cQKsBZEyzxKfwyhkNM3KgWyGQGqykqxnfz4UBPU",
+  "metadata": {
+    "name": "capstan",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Escrow-backed advances for cross-border trade on Solana"
+  },
+  "instructions": [
+    {
+      "name": "auto_release",
+      "docs": [
+        "Anyone can release the escrow once the inspection window has lapsed",
+        "without a dispute. Protects the supplier (and the pool) from a silent importer."
+      ],
+      "discriminator": [
+        212,
+        34,
+        30,
+        246,
+        192,
+        13,
+        97,
+        31
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "signer": true
+        },
+        {
+          "name": "deal",
+          "writable": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "deal",
+            "pool"
+          ]
+        },
+        {
+          "name": "deal_vault",
+          "writable": true
+        },
+        {
+          "name": "pool_vault",
+          "writable": true
+        },
+        {
+          "name": "supplier_token",
+          "writable": true
+        },
+        {
+          "name": "importer_token",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "confirm_delivery",
+      "docs": [
+        "Importer confirms delivery: escrow repays the pool, then pays the supplier."
+      ],
+      "discriminator": [
+        11,
+        109,
+        227,
+        53,
+        179,
+        190,
+        88,
+        155
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "signer": true
+        },
+        {
+          "name": "deal",
+          "writable": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "deal",
+            "pool"
+          ]
+        },
+        {
+          "name": "deal_vault",
+          "writable": true
+        },
+        {
+          "name": "pool_vault",
+          "writable": true
+        },
+        {
+          "name": "supplier_token",
+          "writable": true
+        },
+        {
+          "name": "importer_token",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_deal",
+      "docs": [
+        "Importer opens a deal and locks the full order amount in escrow."
+      ],
+      "discriminator": [
+        198,
+        212,
+        144,
+        151,
+        97,
+        56,
+        149,
+        113
+      ],
+      "accounts": [
+        {
+          "name": "importer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "supplier"
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "deal",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  97,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "importer"
+              },
+              {
+                "kind": "arg",
+                "path": "deal_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "deal_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  97,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "deal"
+              }
+            ]
+          }
+        },
+        {
+          "name": "importer_token",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "deal_id",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "ship_by",
+          "type": "i64"
+        },
+        {
+          "name": "release_window",
+          "type": "i64"
+        },
+        {
+          "name": "terms_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "docs": [
+        "Liquidity provider deposits stablecoins and receives pool shares."
+      ],
+      "discriminator": [
+        242,
+        35,
+        198,
+        137,
+        82,
+        225,
+        242,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "provider",
+          "signer": true
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "share_mint",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "pool_vault",
+          "writable": true
+        },
+        {
+          "name": "provider_token",
+          "writable": true
+        },
+        {
+          "name": "provider_shares",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "faucet",
+      "docs": [
+        "Devnet helper: mints test stablecoins from a mint whose authority is",
+        "this program's faucet PDA. Worthless by construction on any cluster."
+      ],
+      "discriminator": [
+        0,
+        98,
+        59,
+        30,
+        144,
+        142,
+        113,
+        12
+      ],
+      "accounts": [
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "faucet_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  97,
+                  117,
+                  99,
+                  101,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient_token",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "init_pool",
+      "docs": [
+        "Creates a liquidity pool for one stablecoin mint."
+      ],
+      "discriminator": [
+        116,
+        233,
+        199,
+        204,
+        115,
+        159,
+        171,
+        36
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "share_mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  97,
+                  114,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "advance_fee_bps",
+          "type": "u16"
+        },
+        {
+          "name": "max_advance_bps",
+          "type": "u16"
+        },
+        {
+          "name": "arbiter",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "mark_shipped",
+      "docs": [
+        "Supplier records proof of shipment (hash of the bill of lading or",
+        "tracking record). Starts the importer's inspection window."
+      ],
+      "discriminator": [
+        239,
+        5,
+        66,
+        105,
+        238,
+        17,
+        89,
+        97
+      ],
+      "accounts": [
+        {
+          "name": "supplier",
+          "signer": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "deal",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "shipment_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "open_dispute",
+      "docs": [
+        "Importer disputes the shipment inside the inspection window."
+      ],
+      "discriminator": [
+        137,
+        25,
+        99,
+        119,
+        23,
+        223,
+        161,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "importer",
+          "signer": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "deal",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "refund_unshipped",
+      "docs": [
+        "Importer takes the money back if the supplier never shipped in time."
+      ],
+      "discriminator": [
+        68,
+        79,
+        132,
+        124,
+        3,
+        87,
+        233,
+        201
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "signer": true
+        },
+        {
+          "name": "deal",
+          "writable": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "deal",
+            "pool"
+          ]
+        },
+        {
+          "name": "deal_vault",
+          "writable": true
+        },
+        {
+          "name": "pool_vault",
+          "writable": true
+        },
+        {
+          "name": "supplier_token",
+          "writable": true
+        },
+        {
+          "name": "importer_token",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "request_advance",
+      "docs": [
+        "Supplier draws an advance from the pool against the locked escrow."
+      ],
+      "discriminator": [
+        30,
+        94,
+        222,
+        131,
+        223,
+        83,
+        0,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "supplier",
+          "signer": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "deal",
+          "writable": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "deal",
+            "pool"
+          ]
+        },
+        {
+          "name": "pool_vault",
+          "writable": true
+        },
+        {
+          "name": "supplier_token",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "resolve_dispute",
+      "docs": [
+        "The pool's arbiter splits the escrow. The supplier's share repays the",
+        "pool first; any shortfall is booked as a pool loss."
+      ],
+      "discriminator": [
+        231,
+        6,
+        202,
+        6,
+        96,
+        103,
+        12,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "signer": true
+        },
+        {
+          "name": "deal",
+          "writable": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "relations": [
+            "deal"
+          ]
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "deal",
+            "pool"
+          ]
+        },
+        {
+          "name": "deal_vault",
+          "writable": true
+        },
+        {
+          "name": "pool_vault",
+          "writable": true
+        },
+        {
+          "name": "supplier_token",
+          "writable": true
+        },
+        {
+          "name": "importer_token",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "supplier_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "docs": [
+        "Liquidity provider burns shares for their pro-rata stablecoins.",
+        "Only idle liquidity can leave; capital lent out stays until repaid."
+      ],
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "provider",
+          "signer": true
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "share_mint",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "pool_vault",
+          "writable": true
+        },
+        {
+          "name": "provider_token",
+          "writable": true
+        },
+        {
+          "name": "provider_shares",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "shares",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Deal",
+      "discriminator": [
+        125,
+        223,
+        160,
+        234,
+        71,
+        162,
+        182,
+        219
+      ]
+    },
+    {
+      "name": "Pool",
+      "discriminator": [
+        241,
+        154,
+        109,
+        4,
+        17,
+        177,
+        109,
+        188
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AdvancePaid",
+      "discriminator": [
+        250,
+        72,
+        166,
+        185,
+        3,
+        194,
+        18,
+        41
+      ]
+    },
+    {
+      "name": "DealCreated",
+      "discriminator": [
+        27,
+        18,
+        50,
+        52,
+        104,
+        175,
+        46,
+        101
+      ]
+    },
+    {
+      "name": "DealDisputed",
+      "discriminator": [
+        232,
+        107,
+        140,
+        245,
+        64,
+        71,
+        20,
+        223
+      ]
+    },
+    {
+      "name": "DealSettled",
+      "discriminator": [
+        41,
+        213,
+        235,
+        64,
+        55,
+        168,
+        51,
+        76
+      ]
+    },
+    {
+      "name": "DealShipped",
+      "discriminator": [
+        244,
+        176,
+        78,
+        233,
+        48,
+        78,
+        56,
+        195
+      ]
+    },
+    {
+      "name": "LiquidityDeposited",
+      "discriminator": [
+        218,
+        155,
+        74,
+        193,
+        59,
+        66,
+        94,
+        122
+      ]
+    },
+    {
+      "name": "LiquidityWithdrawn",
+      "discriminator": [
+        240,
+        120,
+        73,
+        139,
+        154,
+        31,
+        218,
+        68
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ZeroAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidBps",
+      "msg": "Basis points out of range"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidDeadline",
+      "msg": "Deadline or window out of range"
+    },
+    {
+      "code": 6003,
+      "name": "SameParty",
+      "msg": "Importer and supplier must be different wallets"
+    },
+    {
+      "code": 6004,
+      "name": "Unauthorized",
+      "msg": "Signer is not allowed to perform this action"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidState",
+      "msg": "Deal is not in the right state for this action"
+    },
+    {
+      "code": 6006,
+      "name": "ShipDeadlinePassed",
+      "msg": "Shipping deadline has passed"
+    },
+    {
+      "code": 6007,
+      "name": "ShipDeadlineNotReached",
+      "msg": "Shipping deadline has not passed yet"
+    },
+    {
+      "code": 6008,
+      "name": "MissingProof",
+      "msg": "Proof of shipment is required"
+    },
+    {
+      "code": 6009,
+      "name": "AdvanceAlreadyTaken",
+      "msg": "An advance was already drawn on this deal"
+    },
+    {
+      "code": 6010,
+      "name": "AdvanceTooLarge",
+      "msg": "Requested amount is above the allowed limit"
+    },
+    {
+      "code": 6011,
+      "name": "InsufficientLiquidity",
+      "msg": "Not enough idle liquidity in the pool"
+    },
+    {
+      "code": 6012,
+      "name": "WindowClosed",
+      "msg": "Inspection window is closed"
+    },
+    {
+      "code": 6013,
+      "name": "WindowStillOpen",
+      "msg": "Inspection window is still open"
+    },
+    {
+      "code": 6014,
+      "name": "MathOverflow",
+      "msg": "Math overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "AdvancePaid",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deal",
+            "type": "pubkey"
+          },
+          {
+            "name": "supplier",
+            "type": "pubkey"
+          },
+          {
+            "name": "principal",
+            "type": "u64"
+          },
+          {
+            "name": "fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Deal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "importer",
+            "type": "pubkey"
+          },
+          {
+            "name": "supplier",
+            "type": "pubkey"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "deal_id",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "terms_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "shipment_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "ship_by",
+            "type": "i64"
+          },
+          {
+            "name": "release_window",
+            "type": "i64"
+          },
+          {
+            "name": "shipped_at",
+            "type": "i64"
+          },
+          {
+            "name": "advance_principal",
+            "type": "u64"
+          },
+          {
+            "name": "advance_fee",
+            "type": "u64"
+          },
+          {
+            "name": "pool_repaid",
+            "type": "u64"
+          },
+          {
+            "name": "supplier_paid",
+            "type": "u64"
+          },
+          {
+            "name": "importer_refunded",
+            "type": "u64"
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "DealState"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DealCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deal",
+            "type": "pubkey"
+          },
+          {
+            "name": "importer",
+            "type": "pubkey"
+          },
+          {
+            "name": "supplier",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "ship_by",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DealDisputed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deal",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DealSettled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deal",
+            "type": "pubkey"
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "DealState"
+              }
+            }
+          },
+          {
+            "name": "to_pool",
+            "type": "u64"
+          },
+          {
+            "name": "to_supplier",
+            "type": "u64"
+          },
+          {
+            "name": "to_importer",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DealShipped",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deal",
+            "type": "pubkey"
+          },
+          {
+            "name": "shipment_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "release_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DealState",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Funded"
+          },
+          {
+            "name": "Shipped"
+          },
+          {
+            "name": "Disputed"
+          },
+          {
+            "name": "Released"
+          },
+          {
+            "name": "Resolved"
+          },
+          {
+            "name": "Refunded"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiquidityDeposited",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "provider",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "shares",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiquidityWithdrawn",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "provider",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "shares",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Pool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "arbiter",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "share_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "advance_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_advance_bps",
+            "type": "u16"
+          },
+          {
+            "name": "outstanding_principal",
+            "type": "u64"
+          },
+          {
+            "name": "fees_earned",
+            "type": "u64"
+          },
+          {
+            "name": "losses",
+            "type": "u64"
+          },
+          {
+            "name": "advances_paid",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
